@@ -21,17 +21,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
     let wallCategory: UInt32 = 1 << 2       // 0...00100
     let scoreCategory: UInt32 = 1 << 3      // 0...01000
     let insectCategory: UInt32 = 1 << 4     // 追加for課題??
-
     
     // スコア用
     var score = 0  // ←追加
     var scoreLabelNode:SKLabelNode!    // ←追加
+    var itemScoreLabelNode:SKLabelNode! //追加for課題
     var bestScoreLabelNode:SKLabelNode!    // ←追加
     let userDefaults:UserDefaults = UserDefaults.standard    // 追加
-    
-    
-    
-    
+        
     // SKView上にシーンが表示されたときに呼ばれるメソッド
     override func didMove(to view: SKView) {
         // 重力を設定
@@ -140,17 +137,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
             // スプライトを追加する
             scrollNode.addChild(sprite)
         }
-        //              // テクスチャを指定してスプライトを作成する
-        //              let groundSprite = SKSpriteNode(texture: groundTexture)
-        //
-        //              // スプライトの表示する位置を指定する
-        //              groundSprite.position = CGPoint(
-        //                  x: groundTexture.size().width / 2,
-        //                  y: groundTexture.size().height / 2
-        //              )
-        //
-        //              // シーンにスプライトを追加する
-        //              addChild(groundSprite)
+
     }
     
     func setupWall() {
@@ -357,9 +344,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
          scoreLabelNode.text = "Score:\(score)"
          self.addChild(scoreLabelNode)
 
+        itemScoreLabelNode = SKLabelNode()
+        itemScoreLabelNode.fontColor = UIColor.black
+        itemScoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 90)
+        itemScoreLabelNode.zPosition = 100 // 一番手前に表示する
+        itemScoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
+
+        let itemScore = userDefaults.integer(forKey: "BEST")
+        itemScoreLabelNode.text = "Item Score:\(itemScore)"
+        self.addChild(itemScoreLabelNode)
+        
          bestScoreLabelNode = SKLabelNode()
          bestScoreLabelNode.fontColor = UIColor.black
-         bestScoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 90)
+         bestScoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 120)
          bestScoreLabelNode.zPosition = 100 // 一番手前に表示する
          bestScoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
 
