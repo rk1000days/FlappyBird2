@@ -12,14 +12,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
     
     var scrollNode: SKNode!
     var wallNode: SKNode!
-    var bird:SKSpriteNode!    // 追加
-    
+    var bird:SKSpriteNode!
+    var insect:SKSpriteNode! //追加for課題
     
     // 衝突判定カテゴリー ↓追加
     let birdCategory: UInt32 = 1 << 0       // 0...00001
     let groundCategory: UInt32 = 1 << 1     // 0...00010
     let wallCategory: UInt32 = 1 << 2       // 0...00100
     let scoreCategory: UInt32 = 1 << 3      // 0...01000
+    let insectCategory: UInt32 = 1 << 4     // 追加for課題??
+
     
     // スコア用
     var score = 0  // ←追加
@@ -50,11 +52,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
         //各種スプライトを生成する処理をメソッドに分割
         setupGround()
         setupCloud()
-        setupWall()   // 追加
-        setupBird()   // 追加
+        setupWall()
+        setupBird()
         
-        setupScoreLabel()   // 追加
-        
+        setupScoreLabel()
+        setupInsect() //追加for課題
     }
     
     
@@ -150,6 +152,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
         //              // シーンにスプライトを追加する
         //              addChild(groundSprite)
     }
+    
     func setupWall() {
         // 壁の画像を読み込む
         let wallTexture = SKTexture(imageNamed: "wall")
@@ -171,10 +174,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
         let birdSize = SKTexture(imageNamed: "bird_a").size()
         
         // 鳥が通り抜ける隙間の長さを鳥のサイズの3倍とする
-        let slit_length = birdSize.height * 3
+        let slit_length = birdSize.height * 5 //　一時的に5倍に変更
         
         // 隙間位置の上下の振れ幅を鳥のサイズの3倍とする
-        let random_y_range = birdSize.height * 3
+        let random_y_range = birdSize.height * 5// 一時的に５倍に変更
+        
         
         // 下の壁のY軸下限位置(中央位置から下方向の最大振れ幅で下の壁を表示する位置)を計算
         let groundSize = SKTexture(imageNamed: "ground").size()
@@ -363,5 +367,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
          bestScoreLabelNode.text = "Best Score:\(bestScore)"
          self.addChild(bestScoreLabelNode)
      }
-    
+ 
+    func setupInsect() {
+        //画像読み込み
+        let insectTexture = SKTexture(imageNamed: "insect")
+        insectTexture.filteringMode = .linear
+        
+        // スプライトを作成
+        insect = SKSpriteNode(texture: insectTexture)
+        insect.position = CGPoint(x: self.frame.size.width * 0.7, y:self.frame.size.height * 0.7)
+        
+        
+        // スプライトを追加する
+        addChild(insect)
+        
+ 
+        
+
+}
 }
