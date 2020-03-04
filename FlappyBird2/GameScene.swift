@@ -156,6 +156,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
         
         // 2つのアニメーションを順に実行するアクションを作成
         let wallAnimation = SKAction.sequence([moveWall, removeWall])
+      
+        //画像読み込み
+         let insectTexture = SKTexture(imageNamed: "insect")
+         insectTexture.filteringMode = .linear
+         
+         // スプライトを作成
+         insect = SKSpriteNode(texture: insectTexture)
+         insect.position = CGPoint(x: self.frame.size.width * 0.7, y:self.frame.size.height * 0.7)
+         
+         // スプライトを追加する
+         addChild(insect)
+        
+
         
         // 鳥の画像サイズを取得
         let birdSize = SKTexture(imageNamed: "bird_a").size()
@@ -344,6 +357,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
          scoreLabelNode.text = "Score:\(score)"
          self.addChild(scoreLabelNode)
 
+        //追加for課題ーーーここからーーー
         itemScoreLabelNode = SKLabelNode()
         itemScoreLabelNode.fontColor = UIColor.black
         itemScoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 90)
@@ -352,7 +366,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
 
         let itemScore = userDefaults.integer(forKey: "BEST")
         itemScoreLabelNode.text = "Item Score:\(itemScore)"
-        self.addChild(itemScoreLabelNode)
+        self.addChild(itemScoreLabelNode) //ーーーここまでーーー
         
          bestScoreLabelNode = SKLabelNode()
          bestScoreLabelNode.fontColor = UIColor.black
@@ -365,21 +379,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
          self.addChild(bestScoreLabelNode)
      }
  
-    func setupInsect() {
-        //画像読み込み
-        let insectTexture = SKTexture(imageNamed: "insect")
-        insectTexture.filteringMode = .linear
-        
-        // スプライトを作成
-        insect = SKSpriteNode(texture: insectTexture)
-        insect.position = CGPoint(x: self.frame.size.width * 0.7, y:self.frame.size.height * 0.7)
-        
-        
-        // スプライトを追加する
-        addChild(insect)
-        
- 
-        
-
-}
+  //  func setupInsect() {
+//}
 }
