@@ -7,28 +7,30 @@
 //
 
 import SpriteKit
+import AVFoundation
 
 class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
     
     var scrollNode: SKNode!
     var wallNode: SKNode!
     var bird:SKSpriteNode!
-    var insect:SKSpriteNode! //追加for課題
+    var insectNode:SKNode! //追加for課題
     
     // 衝突判定カテゴリー ↓追加
     let birdCategory: UInt32 = 1 << 0       // 0...00001
     let groundCategory: UInt32 = 1 << 1     // 0...00010
     let wallCategory: UInt32 = 1 << 2       // 0...00100
     let scoreCategory: UInt32 = 1 << 3      // 0...01000
-    let insectCategory: UInt32 = 1 << 4     // 追加for課題??
+    let insectCategory: UInt32 = 1 << 4     // 0...10000 追加for課題
     
     // スコア用
     var score = 0  // ←追加
+    var scoreItem = 0 //追加for課題
     var scoreLabelNode:SKLabelNode!    // ←追加
     var itemScoreLabelNode:SKLabelNode! //追加for課題
     var bestScoreLabelNode:SKLabelNode!    // ←追加
     let userDefaults:UserDefaults = UserDefaults.standard    // 追加
-        
+    
     // SKView上にシーンが表示されたときに呼ばれるメソッド
     override func didMove(to view: SKView) {
         // 重力を設定
@@ -45,6 +47,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
         // 壁用のノード
         wallNode = SKNode()   // 追加
         scrollNode.addChild(wallNode)   // 追加
+        
+        // アイテム用のノード
+        insectNode = SKNode()
+        scrollNode.addChild(insectNode)
         
         //各種スプライトを生成する処理をメソッドに分割
         setupGround()
@@ -137,7 +143,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
             // スプライトを追加する
             scrollNode.addChild(sprite)
         }
-
+        
     }
     
     func setupWall() {
@@ -149,26 +155,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
         let movingDistance = CGFloat(self.frame.size.width + wallTexture.size().width)
         
         // 画面外まで移動するアクションを作成
-        let moveWall = SKAction.moveBy(x: -movingDistance, y: 0, duration:4)
+        let moveWall = SKAction.moveBy(x: -movingDistance, y: 0, duration: 4)
         
         // 自身を取り除くアクションを作成
         let removeWall = SKAction.removeFromParent()
         
         // 2つのアニメーションを順に実行するアクションを作成
         let wallAnimation = SKAction.sequence([moveWall, removeWall])
-      
-        //画像読み込み
-         let insectTexture = SKTexture(imageNamed: "insect")
-         insectTexture.filteringMode = .linear
-         
-         // スプライトを作成
-         insect = SKSpriteNode(texture: insectTexture)
-         insect.position = CGPoint(x: self.frame.size.width * 0.7, y:self.frame.size.height * 0.7)
-         
-         // スプライトを追加する
-         addChild(insect)
         
-
         
         // 鳥の画像サイズを取得
         let birdSize = SKTexture(imageNamed: "bird_a").size()
@@ -177,7 +171,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
         let slit_length = birdSize.height * 5 //　一時的に5倍に変更
         
         // 隙間位置の上下の振れ幅を鳥のサイズの3倍とする
-        let random_y_range = birdSize.height * 5// 一時的に５倍に変更
+        let random_y_range = birdSize.height * 3
         
         
         // 下の壁のY軸下限位置(中央位置から下方向の最大振れ幅で下の壁を表示する位置)を計算
@@ -222,6 +216,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
             upper.physicsBody?.isDynamic = false    // ←追加
             
             wall.addChild(upper)
+            
+            
             // スコアアップ用のノード --- ここから ---
             let scoreNode = SKNode()
             scoreNode.position = CGPoint(x: upper.size.width + birdSize.width / 2, y: self.frame.height / 2)
@@ -291,6 +287,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
             print("ScoreUp")
             score += 1
             scoreLabelNode.text = "Score:\(score)"    // ←追加
+            insectNode.isHidden = false //アイテム表示
             
             // ベストスコア更新か確認する --- ここから ---
             var bestScore = userDefaults.integer(forKey: "BEST")
@@ -300,6 +297,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
                 userDefaults.set(bestScore, forKey: "BEST")
                 userDefaults.synchronize()
             } // --- ここまで追加---
+            
+        } else if (contact.bodyA.categoryBitMask & insectCategory) == insectCategory || (contact.bodyB.categoryBitMask & insectCategory) == insectCategory {
+            // アイテム用の物体と衝突した
+            print("ScoreUp of Item")
+            scoreItem += 1
+            insectNode.isHidden = true // アイテム非表示
+            
+            //アイテム取得音を再生
+            play(music: "nyu3.mp3", loop: false)
+            
+            itemScoreLabelNode.text = "Item Score:\(scoreItem)"
             
         } else {
             // 壁か地面と衝突した
@@ -314,13 +322,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
             bird.run(roll, completion:{
                 self.bird.speed = 0
             })
+                        
         }
+    }
+    
+    func play(music: String, loop: Bool) {
+        let play = SKAudioNode.init(fileNamed: music)
+        play.autoplayLooped = loop
+        self.addChild(play)
+        self.run(
+            SKAction.sequence([
+                SKAction.run {
+                    play.run(SKAction.play())
+                }
+                ])
+        )
     }
     
     
     func restart() {
         score = 0
+        scoreItem = 0
         scoreLabelNode.text = "Score:\(score)"    // ←追加
+        itemScoreLabelNode.text = String("Item Score:\(scoreItem)")
         
         bird.position = CGPoint(x: self.frame.size.width * 0.2, y:self.frame.size.height * 0.7)
         bird.physicsBody?.velocity = CGVector.zero
@@ -328,6 +352,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
         bird.zRotation = 0
         
         wallNode.removeAllChildren()
+        insectNode.removeAllChildren()
         
         bird.speed = 1
         scrollNode.speed = 1
@@ -348,37 +373,107 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
     }
     
     func setupScoreLabel() {
-         score = 0
-         scoreLabelNode = SKLabelNode()
-         scoreLabelNode.fontColor = UIColor.black
-         scoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 60)
-         scoreLabelNode.zPosition = 100 // 一番手前に表示する
-         scoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
-         scoreLabelNode.text = "Score:\(score)"
-         self.addChild(scoreLabelNode)
-
+        score = 0
+        scoreLabelNode = SKLabelNode()
+        scoreLabelNode.fontColor = UIColor.black
+        scoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 60)
+        scoreLabelNode.zPosition = 100 // 一番手前に表示する
+        scoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
+        scoreLabelNode.text = "Score:\(score)"
+        self.addChild(scoreLabelNode)
+        
         //追加for課題ーーーここからーーー
         itemScoreLabelNode = SKLabelNode()
         itemScoreLabelNode.fontColor = UIColor.black
         itemScoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 90)
         itemScoreLabelNode.zPosition = 100 // 一番手前に表示する
         itemScoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
-
-        let itemScore = userDefaults.integer(forKey: "BEST")
-        itemScoreLabelNode.text = "Item Score:\(itemScore)"
+        
+//        let itemScore = userDefaults.integer(forKey: "BEST") // "BEST"?
+        itemScoreLabelNode.text = "Item Score:\(scoreItem)"
         self.addChild(itemScoreLabelNode) //ーーーここまでーーー
         
-         bestScoreLabelNode = SKLabelNode()
-         bestScoreLabelNode.fontColor = UIColor.black
-         bestScoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 120)
-         bestScoreLabelNode.zPosition = 100 // 一番手前に表示する
-         bestScoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
-
-         let bestScore = userDefaults.integer(forKey: "BEST")
-         bestScoreLabelNode.text = "Best Score:\(bestScore)"
-         self.addChild(bestScoreLabelNode)
-     }
- 
-  //  func setupInsect() {
-//}
+        bestScoreLabelNode = SKLabelNode()
+        bestScoreLabelNode.fontColor = UIColor.black
+        bestScoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 120)
+        bestScoreLabelNode.zPosition = 100 // 一番手前に表示する
+        bestScoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
+        
+        let bestScore = userDefaults.integer(forKey: "BEST")
+        bestScoreLabelNode.text = "Best Score:\(bestScore)"
+        self.addChild(bestScoreLabelNode)
+    }
+    
+    func setupInsect() {
+        //画像読み込み
+        let insectTexture = SKTexture(imageNamed: "insect")
+        insectTexture.filteringMode = .linear
+        
+        // アイテムの画像サイズを取得
+        let insectSize = SKTexture(imageNamed: "insect").size()
+        
+        // アイテムの振れ幅をアイテムのサイズの2倍とする
+        let random_y_range = insectSize.height * 2
+        
+        // 移動する距離を計算
+        let movingDistance = CGFloat(self.frame.size.width + insectTexture.size().width)
+        
+        // 画面外まで移動するアクションを作成
+        let moveInsect = SKAction.moveBy(x: -movingDistance, y: 0, duration:4)
+        
+        // 自身を取り除くアクションを作成
+        let removeInsect = SKAction.removeFromParent()
+        
+        // 2つのアニメーションを順に実行するアクションを作成
+        let insectAnimation = SKAction.sequence([moveInsect, removeInsect])
+        
+        // 中央位置から下方向の最大振れ幅でアイテムを表示する位置を計算
+        let center_y = self.frame.size.height / 2
+        let insect_lowest_y = center_y + random_y_range
+        
+        // 壁を生成するアクションを作成
+        let createInsectAnimation = SKAction.run({
+            // insect関連のノードを乗せるノードを作成
+            let insect = SKNode()
+            insect.position = CGPoint(x: self.frame.size.width + insectTexture.size().width / 2, y: 0)
+            insect.zPosition = -50 // 雲より手前、地面より奥
+            
+            // 0〜random_y_rangeまでのランダム値を生成
+            let random_y = CGFloat.random(in: 0..<random_y_range)
+            // Y軸の下限にランダムな値を足して、アイテムのY座標を決定
+            let insect_y = insect_lowest_y + random_y
+            
+            // アイテムを作成
+            let insects = SKSpriteNode(texture: insectTexture)
+            insects.position = CGPoint(x: -random_y_range, y: insect_y)
+            
+            // スプライトに物理演算を設定する
+            insects.physicsBody = SKPhysicsBody(rectangleOf: insectTexture.size())
+            insects.physicsBody?.categoryBitMask = self.insectCategory
+            
+            // 衝突の時に動かないように設定する
+            insects.physicsBody?.isDynamic = false
+            
+            insect.addChild(insects)
+            
+            insect.run(insectAnimation)
+            
+            self.insectNode.addChild(insect)
+            
+            
+            // insect.physicsBody = SKPhysicsBody(circleOfRadius: insect.size.height / 2)
+            // insect.physicsBody?.categoryBitMask = self.insectCategory    // 追加for課題
+            // insect.physicsBody?.contactTestBitMask = self.birdCategory // 追加for課題
+            
+            
+        })
+        // 次の壁作成までの時間待ちのアクションを作成
+        let waitAnimation = SKAction.wait(forDuration: 2)
+        
+        // 壁を作成->時間待ち->壁を作成を無限に繰り返すアクションを作成
+        let repeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([createInsectAnimation, waitAnimation]))
+        
+        insectNode.run(repeatForeverAnimation)
+    }
+    
 }
