@@ -6,7 +6,7 @@
 //  Copyright © 2020 kazuhiro.kabashima. All rights reserved.
 //
 
-import UIKit
+//import UIKit
 import SpriteKit
 import AVFoundation
 
@@ -362,18 +362,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
         
     }
     
-    func play(music: String, loop: Bool) {
-        let play = SKAudioNode.init(fileNamed: "sound")
-        play.autoplayLooped = loop
-        self.addChild(play)
-        self.run(
-            SKAction.sequence([
-                SKAction.run {
-                    play.run(SKAction.play())
-                }
-                ])
-        )
-    }
+//    func play(music: String, loop: Bool) {
+//        let play = SKAudioNode.init(fileNamed: "sound")
+//        play.autoplayLooped = loop
+//        self.addChild(play)
+//        self.run(
+//            SKAction.sequence([
+//                SKAction.run {
+//                    play.run(SKAction.play())
+//                }
+//                ])
+//        )
+//    }
     // SKPhysicsContactDelegateのメソッド。衝突したときに呼ばれる
     func didBegin(_ contact: SKPhysicsContact) {
         // ゲームオーバーのときは何もしない
@@ -388,6 +388,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
             scoreLabelNode.text = "Score:\(score)"    // ←追加
             insectNode.isHidden = false //アイテム表示
             
+            
             // ベストスコア更新か確認する --- ここから ---
             var bestScore = userDefaults.integer(forKey: "BEST")
             if score > bestScore {
@@ -401,16 +402,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate /* 追加 */  {
             // アイテム用の物体と衝突した
             print("ScoreUp of Item")
            
-            let itemGet = SKAction.group([SKAction.playSoundFileNamed("sound", waitForCompletion: false), SKAction.removeFromParent()])
+            let itemGet = SKAction.group([SKAction.playSoundFileNamed("sound", waitForCompletion: true), SKAction.removeFromParent()])
             let target = (contact.bodyA.categoryBitMask & insectCategory == insectCategory) ? contact.bodyA : contact.bodyB
-            target.node?.run(itemGet)
+            target.node!.run(itemGet)
             
             //アイテム取得音を再生
 //            play(music: "sound", loop: true)
             scoreItem += 1
 //            insectNode.isHidden = true // アイテム非表示
             itemScoreLabelNode.text = "Item Score:\(scoreItem)"
-//
+
             
         } else {
             // 壁か地面と衝突した

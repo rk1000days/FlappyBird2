@@ -14,6 +14,7 @@
 		1879B788240BF07E00E88653 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1879B787240BF07E00E88653 /* Assets.xcassets */; };
 		1879B78B240BF07E00E88653 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1879B789240BF07E00E88653 /* LaunchScreen.storyboard */; };
 		1879B795240BF68100E88653 /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1879B794240BF68100E88653 /* GameScene.swift */; };
+		18F2E71B24122A63003D7A82 /* sound in Resources */ = {isa = PBXBuildFile; fileRef = 18F2E71A24122A62003D7A82 /* sound */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		1879B78A240BF07E00E88653 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1879B78C240BF07E00E88653 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1879B794240BF68100E88653 /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
+		18F2E71A24122A62003D7A82 /* sound */ = {isa = PBXFileReference; lastKnownFileType = file; name = sound; path = Assets.xcassets/sound2.dataset/sound; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +60,7 @@
 		1879B77D240BF07C00E88653 /* FlappyBird2 */ = {
 			isa = PBXGroup;
 			children = (
+				18F2E71A24122A62003D7A82 /* sound */,
 				1879B77E240BF07C00E88653 /* AppDelegate.swift */,
 				1879B780240BF07C00E88653 /* SceneDelegate.swift */,
 				1879B782240BF07C00E88653 /* ViewController.swift */,
@@ -129,6 +132,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1879B78B240BF07E00E88653 /* LaunchScreen.storyboard in Resources */,
+				18F2E71B24122A63003D7A82 /* sound in Resources */,
 				1879B788240BF07E00E88653 /* Assets.xcassets in Resources */,
 				1879B786240BF07C00E88653 /* Main.storyboard in Resources */,
 			);
